@@ -150,11 +150,11 @@ public class FieldSerializerTest extends KryoTestCase {
 
 		output.close();
 
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(output.toBytes());
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(outStream.toByteArray());
 		Supplier readObject = kryo.readObject(new Input(inputStream), Supplier.class);
 	}
 
-	public class Supplier {
+	static class Supplier {
 // ------------------------------ FIELDS ------------------------------
 
 		private String name;
@@ -179,7 +179,7 @@ public class FieldSerializerTest extends KryoTestCase {
 		}
 	}
 
-	public class Statistic {
+    static class Statistic {
 // ------------------------------ FIELDS ------------------------------
 
 		private Integer last30DaysRFQResponses;
