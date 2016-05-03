@@ -19,7 +19,9 @@
 
 package com.esotericsoftware.kryo;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -132,7 +134,88 @@ public class FieldSerializerTest extends KryoTestCase {
 		}
 	}
 
-	public void testOptionalRegistration () {
+	public void testIssue419 () {
+		Supplier supplier = new Supplier();
+		supplier.setName("Name");
+		supplier.setStatistic(new Statistic());
+		supplier.getStatistic().setAverageRFQResponseTime(new BigDecimal(10));
+		supplier.getStatistic().setLast30DaysRFQResponses(20);
+		supplier.getStatistic().setRFQResponseRate(new BigDecimal(30));
+
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		Output output = new Output(outStream);
+
+		Kryo kryo = new Kryo();
+		kryo.writeObject(output, supplier);
+
+		output.close();
+
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(output.toBytes());
+		Supplier readObject = kryo.readObject(new Input(inputStream), Supplier.class);
+	}
+
+	public class Supplier {
+// ------------------------------ FIELDS ------------------------------
+
+		private String name;
+		private Statistic statistic;
+
+// --------------------- GETTER / SETTER METHODS ---------------------
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public Statistic getStatistic() {
+			return statistic;
+		}
+
+		public void setStatistic(Statistic statistic) {
+			this.statistic = statistic;
+		}
+	}
+
+	public class Statistic {
+// ------------------------------ FIELDS ------------------------------
+
+		private Integer last30DaysRFQResponses;
+		private BigDecimal averageRFQResponseTime;
+		private BigDecimal RFQResponseRate;
+
+// --------------------- GETTER / SETTER METHODS ---------------------
+
+		public BigDecimal getAverageRFQResponseTime() {
+			return averageRFQResponseTime;
+		}
+
+		public void setAverageRFQResponseTime(BigDecimal averageRFQResponseTime) {
+			this.averageRFQResponseTime = averageRFQResponseTime;
+		}
+
+		public Integer getLast30DaysRFQResponses() {
+			return last30DaysRFQResponses;
+		}
+
+		public void setLast30DaysRFQResponses(Integer last30DaysRFQResponses) {
+			this.last30DaysRFQResponses = last30DaysRFQResponses;
+		}
+
+// -------------------------- OTHER METHODS --------------------------
+
+		public BigDecimal getRFQResponseRate() {
+			return RFQResponseRate;
+		}
+
+		public void setRFQResponseRate(BigDecimal RFQResponseRate) {
+			this.RFQResponseRate = RFQResponseRate;
+		}
+	}
+
+		public void testOptionalRegistration () {
 		kryo.setRegistrationRequired(false);
 		DefaultTypes test = new DefaultTypes();
 		test.intField = 12;
